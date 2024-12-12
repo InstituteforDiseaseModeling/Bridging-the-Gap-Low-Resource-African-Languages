@@ -1,7 +1,7 @@
 # Bridging the Gap: Enhancing LLM Performance for Low-Resource African Languages with New Benchmarks, Fine-Tuning, and Cultural Adjustments
 
 **Authors:**
-**Tuka Alhanai** <tuka@ghamut.com>, **Adam Kasumovic** <adam.kasumovic@ghamut.com>, **Aven Zitzelberger** <aven.zitzelberger@ghamut.com>, **Mohammad Ghassemi** <ghassemi@ghamut.com>, **Jessica Lundin** <jessica.lundin@gatesfoundation.org>, **Guillaume Chabot-Couture** <Guillaume.Chabot-Couture@gatesfoundation.org>
+**Tuka Alhanai** <tuka@ghamut.com>, **Adam Kasumovic** <adam.kasumovic@ghamut.com>, **Mohammad Ghassemi** <ghassemi@ghamut.com>, **Aven Zitzelberger** <aven.zitzelberger@ghamut.com>, **Jessica Lundin** <jessica.lundin@gatesfoundation.org>, **Guillaume Chabot-Couture** <Guillaume.Chabot-Couture@gatesfoundation.org>
 
 This repository contains the benchmarks, results, and all the code required to reproduce the results, tables, and figures presented in our paper (URL pending; paper under review).
 
@@ -157,7 +157,7 @@ If you find this repository useful, please consider citing it:
 ```
 @article{,
   title={Bridging the Gap: Enhancing LLM Performance for Low-Resource African Languages with New Benchmarks, Fine-Tuning, and Cultural Adjustments},
-  author={Tuka Alhanai and Adam Kasumovic and Aven Zitzelberger and Mohammad Ghassemi and Jessica Lundin and Guillaume Chabot-Couture},
+  author={Tuka Alhanai and Adam Kasumovic and Mohammad Ghassemi and Aven Zitzelberger and Jessica Lundin and Guillaume Chabot-Couture},
   year={2024}
 }
 ```
