@@ -1,0 +1,14 @@
+# ignore real config.py file
+config.py
+
+# ignore local directory
+local/
+venv/
+
+# ignore any file ending in .gc.json (used for google cloud API key file)
+*.gc.json
+
+# IDE files
+.idea/
+__pycache__/
+.DS_Store

@@ -1,0 +1,38 @@
+Trial 1:
+  Average input token usage per question: 529.38
+  Average output token usage per question: 611.71
+  Est. o1-preview cost for full evaluation (USD): 1752.3456
+  Est. o1-mini cost for full evaluation (USD): 350.4691
+
+Trial 2:
+  Average input token usage per question: 564.74
+  Average output token usage per question: 479.49
+  Est. o1-preview cost for full evaluation (USD): 1461.7663
+  Est. o1-mini cost for full evaluation (USD): 292.3533
+
+Trial 3:
+  Average input token usage per question: 529.73
+  Average output token usage per question: 567.11
+  Est. o1-preview cost for full evaluation (USD): 1647.5100
+  Est. o1-mini cost for full evaluation (USD): 329.5020
+
+Statistics for input_token_usages:
+  Mean: 541.28
+  Standard Deviation: 20.31
+  95% Confidence Interval: [500.65, 581.91]
+
+Statistics for output_token_usages:
+  Mean: 552.77
+  Standard Deviation: 67.27
+  95% Confidence Interval: [418.24, 687.31]
+
+Statistics for o1_costs:
+  Mean: 1620.54
+  Standard Deviation: 147.15
+  95% Confidence Interval: [1326.23, 1914.85]
+
+Statistics for o1_mini_costs:
+  Mean: 324.11
+  Standard Deviation: 29.43
+  95% Confidence Interval: [265.25, 382.97]
+

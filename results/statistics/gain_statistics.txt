@@ -1,0 +1,22 @@
+For the 11 African languages (excluding English)...
+Average Mono-Lingual Gain (total number of gains considered): 5.6% (88)
+
+MMLU-tuned model mono-lingual gains:
+Average gains when evaluating on belebele: 9.4%
+Average gains when evaluating on mmlu-clinical_knowledge: 17.4%
+Average gains when evaluating on mmlu-virology: 3.5%
+Average gains when evaluating on winogrande: 1.2%
+
+Winogrande-tuned model mono-lingual gains:
+Average gains when evaluating on belebele: 6.4%
+Average gains when evaluating on mmlu-clinical_knowledge: 1.2%
+Average gains when evaluating on mmlu-virology: 2.6%
+Average gains when evaluating on winogrande: 2.7%
+
+Average Cross-Lingual Gain (total number of gains considered): 2.9% (880)
+Maximum Cross-Lingual Gain (total number of gains considered): 21.1% (880)
+
+Average 33 to 66 Quantity MMLU Gain (total number of gains considered): 2.3% (22)
+
+Average low to high quality MMLU Gain (total number of gains considered): 5.4% (44)
+Maximum low to high quality MMLU Gain (total number of gains considered): 14.5% (44)

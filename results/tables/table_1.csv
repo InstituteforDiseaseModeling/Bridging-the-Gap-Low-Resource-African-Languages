@@ -1,0 +1,13 @@
+Model,belebele,winogrande,mmlu-college_medicine,mmlu-clinical_knowledge,mmlu-virology
+GPT-4o (eng),95.9,83.9,84.4,89.8,60.2
+GPT-4o (afr; avg),76.0,64.8,66.6,70.6,48.2
+GPT-4 (afr; avg),69.6,60.9,56.2,60.7,46.0
+Aya 101 (afr; avg),58.4,50.5,35.7,36.1,32.0
+Llama 3 70B (afr; avg),41.2,50.6,35.9,40.6,32.3
+Aya 23 (afr; avg),38.8,51.2,34.3,34.9,28.4
+GPT-3.5 (afr; avg),36.2,51.2,34.6,37.0,32.8
+Llama 3 8B (afr; avg),36.3,50.4,31.9,35.3,27.3
+Bloomz 7B (afr; avg),34.2,49.1,28.9,31.0,25.8
+Phi-3 3B (afr; avg),32.2,50.7,30.3,32.4,27.8
+Random (afr; avg),25.0,50.0,25.0,25.0,25.0
+GPT-4o (eng - (afr; avg)),19.9,19.1,17.8,19.2,12.0
