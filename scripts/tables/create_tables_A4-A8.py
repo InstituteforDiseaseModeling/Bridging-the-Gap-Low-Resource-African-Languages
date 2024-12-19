@@ -7,7 +7,7 @@ from useful_variables import llm_responses, african_languages, languages
 table_name = 'tables_A4-A8.csv'
 
 # Load OOTB results
-ootb = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), f'../../results/tables/table_A3.csv')), encoding='utf-8').set_index('Model (Evaluation Benchmark)')
+ootb = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), f'../../results/tables/table_2.csv')), encoding='utf-8').set_index('Model (Evaluation Benchmark)')
 
 # Initialize output CSV structure
 ordered_benchmarks = ['winogrande', 'mmlu-college_medicine', 'mmlu-clinical_knowledge', 'mmlu-virology', 'belebele']

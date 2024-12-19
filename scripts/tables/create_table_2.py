@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils')))
 from useful_variables import llm_responses, languages
 
-table_name = 'table_A3.csv'
+table_name = 'table_2.csv'
 
 # Initialize output CSV structure
 ordered_benchmarks = ['winogrande', 'mmlu-college_medicine', 'mmlu-clinical_knowledge', 'mmlu-virology', 'belebele']

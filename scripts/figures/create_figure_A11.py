@@ -10,7 +10,7 @@ sns.set_context("talk", font_scale=0.75)  # Adjust font_scale as needed
 columns = ['bm', 'am', 'ig', 'sn', 'nso', 'ts', 'tn', 'st', 'xh', 'zu', 'af', 'en']
 
 data = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__),
-                                    '../../results/tables/table_A3.csv')))
+                                    '../../results/tables/table_2.csv')))
 data = data[columns]
 spearman_corr = data.corr(method='spearman')
 
