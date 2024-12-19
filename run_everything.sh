@@ -4,6 +4,7 @@ set -e  # Exit immediately if a command exits with a non-zero status
 echo "Running all scripts that do not incur a monetary cost"
 echo "Recreating tables"
 python3 scripts/tables/create_table_2.py > /dev/null 2>&1
+python3 scripts/tables/create_tables_A13-A20.py > /dev/null 2>&1
 find scripts/tables -name "*.py" | xargs -n 1 -P 8 python3 > /dev/null 2>&1
 
 echo "Recreating figures"
