@@ -1,141 +1,127 @@
+# ## Figure A.13
+import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches  # This is needed to create custom legend handles
-from tqdm import tqdm
-import sys
+from matplotlib.lines import Line2D
 import os
-sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils/')))
-from useful_variables import evaluation_data, african_languages, winogrande_data
-from useful_functions import rouge_score_single, get_initials
+import random
+random.seed(42)
 
-figure_name = 'figure_A13.pdf'
+data = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/3. Winogrande Cultural Surveys.csv')))
+eval = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/6. Evaluation Data.csv')), low_memory=False)
+resp = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/5. LLM Responses.csv')), low_memory=False)
 
-# Filter out Belebele since we do not care about translation performance on it
-evaluation_data = evaluation_data[evaluation_data['Evaluation.Data'] != 'belebele']
+# left join data to eval on the column 'Winogrande Question ID' and "Evaluation.Winogrande Question ID" and Target Language columns
+data2 = pd.merge(data, eval, left_on=['Winogrande Question ID', 'Target Language'],
+                 right_on=['Evaluation.Winogrande Question ID', 'Evaluation.Target Language'], how='left')
 
-# Get human-translated rows
-evaluation_data_human = evaluation_data[(evaluation_data['Evaluation.Translation Approach'].str.contains('Human')) &
-                                        (evaluation_data['Evaluation.Target Language'] != 'en')]
+# left join data2 to resp on the Evaluation.Question ID columns
+data2 = pd.merge(data2, resp, left_on='Evaluation.Question ID', right_on='Evaluation.Question ID', how='left')
 
-# Get machine-translated rows (excluding backtranslations)
-evaluation_data_mt = evaluation_data[(evaluation_data['Evaluation.Question ID'].str.contains('-gt-')) &
-                                     (evaluation_data['Evaluation.Target Language'] != 'en')]
+# keep only the rows in data2 where Evaluation.Translation Approach_y contains the string "Human"
+data2 = data2[data2['Evaluation.Translation Approach_y'] == 'Human - Upwork.com']
 
-# Get English rows (excluding backtranslations)
-evaluation_data_en = evaluation_data[(evaluation_data['Evaluation.Translation Approach'].str.contains('Human')) &
-                                     (evaluation_data['Evaluation.Target Language'] == 'en')]
+# Keep only the out-of-the-box results
+data2 = data2[data2['Model.Was Fine-Tuned'] == False]
 
-# Compute ROUGE-1 scores between machine translations and original English
-rouge1_vs_mt = []
-rouge1_vs_original = []
-for index, row in tqdm(evaluation_data_human.iterrows(), total=evaluation_data_human.shape[0]):
-    this_id = row['Evaluation.Question ID']
-    this_lang = row['Evaluation.Target Language']
+# Keep only the GPT 4o out-of-the-box results
+data2 = data2[data2['Model.Unique Identifier'] == 'gpt-4o-2024-05-13']
 
-    # Adjust IDs to map to machine-translated or English versions
-    english_row = evaluation_data_en[evaluation_data_en['Evaluation.Question ID'] == this_id.replace(f"-{this_lang}-", f"-en-")]
-    mt_row = evaluation_data_mt[evaluation_data_mt['Evaluation.Question ID'] == this_id.replace(f"-{this_lang}-", f"-gt-{this_lang}-")]
-    assert english_row.shape[0] == mt_row.shape[0] and mt_row.shape[0] == 1  # check that only 1 row matches
+data2['good_translation'] = (data2['Translation Quality per Annotator 1'] != 'Completely wrong') & (
+            data2['Translation Quality per Annotator 2'] != 'Completely wrong')
 
-    english_row = english_row.iloc[0]
-    mt_row = mt_row.iloc[0]
+data2['appropriate'] = ((data2['Cultural Appropriateness per Annotator 1'] == 'No, the sentence is typical') & (
+            data2['Cultural Appropriateness per Annotator 2'] == 'No, the sentence is typical'))
 
-    rouge1_vs_mt.append(rouge_score_single(row['Evaluation.Question'], mt_row['Evaluation.Question']))
-    rouge1_vs_original.append(rouge_score_single(row['Evaluation.Question'], english_row['Evaluation.Question']))
+# keep only these columns: Target Language, Winogrande Question ID, Translation Quality per Annotator 1, Translation Quality per Annotator 2, Cultural Appropriateness per Annotator 1, Cultural Appropriateness per Annotator 2, Evaluation.Model Response Was Correct
+data3 = data2[['Target Language', 'Winogrande Question ID', 'good_translation', 'appropriate',
+               'Evaluation.Model Response Was Correct']]
 
-# Store ROUGE-1 scores
-evaluation_data_human['ROUGE-1 vs Machine-Translation'] = rouge1_vs_mt
-evaluation_data_human['ROUGE-1 vs Original English'] = rouge1_vs_original
+# keep only the good transaltions
+data3 = data3[data3['good_translation']]
 
-# Get mapping of Winogrande data keys to translator names
-translator_name_map = dict(zip(winogrande_data['Key'], winogrande_data['Initial Translator Name']))
+# Generate a list of Target Languages
+languages = data3['Target Language'].unique()
 
-# Apply mapping to get column of translator names in evaluation dataset
-evaluation_data_human['Translator Name'] = evaluation_data_human['Evaluation.Winogrande Key'].map(translator_name_map)
+# initialize a dict to store results for each langauge
+results = {}
 
-# Convert names to initials
-evaluation_data_human['Translator Name'] = evaluation_data_human['Translator Name'].apply(lambda x: get_initials(x))
+# For each langage in the list
+for lang in languages:
+    # generate a dataframe for the language
+    data_lang = data3[data3['Target Language'] == lang]
 
-# Get list of unique translators
-translators = sorted(evaluation_data_human['Translator Name'].fillna('').unique().tolist())
-translators.remove("")
+    # compute the count of the rows that are "appropriate" and "inappropriate"
+    count = data_lang.groupby('appropriate').count()
 
-# Get number of rows with each translator for sanity checking
-translator_row_counts = evaluation_data_human['Translator Name'].value_counts().to_dict()
+    # store the appropriate count in a variable
+    appropriate = count.loc[True, 'Target Language']
 
-# Get distributions of ROUGE-1 by translator
-distributions_mt_trans = {}
-distributions_original_trans = {}
-for translator in translators:
-    distribution_trans = evaluation_data_human[evaluation_data_human['Translator Name'] == translator]
-    assert distribution_trans.shape[0] == translator_row_counts[translator]
-    distributions_mt_trans[translator] = distribution_trans['ROUGE-1 vs Machine-Translation'].tolist()
-    distributions_original_trans[translator] = distribution_trans['ROUGE-1 vs Original English'].tolist()
+    # store the inappropriate count in a variable
+    inappropriate = count.loc[False, 'Target Language']
 
-# Creating the boxplot
-fig, ax = plt.subplots(figsize=(11, 4))
+    # Count row many rows were correct when the translation was appropriate
+    correct_appropriate = data_lang[data_lang['appropriate'] == True]['Evaluation.Model Response Was Correct'].sum()
 
-# Organize distributions into list of lists in desired order
-data_values = []
-for translator in translators:
-    data_values.append(distributions_mt_trans[translator])
-    data_values.append(distributions_original_trans[translator])
-bp = ax.boxplot(
-    data_values,
-    tick_labels=list(range(len(translators)*2)),  # Two bars for each translator (similarity to machine translation and similarity to original English)
-    patch_artist=True,
-    whis=(0, 100),
-    whiskerprops=dict(color='gray', linewidth=1),
-    medianprops=dict(color='gray', linewidth=1),
-    boxprops=dict(color='gray', linewidth=1)
-    # flierprops=dict(marker='o', color='red', markersize=8, markeredgecolor='white')
-)
+    # Count row many rows were correct when the translation was inappropriate
+    correct_inappropriate = data_lang[data_lang['appropriate'] == False]['Evaluation.Model Response Was Correct'].sum()
 
-colors = ['#85C1E9', '#82E0AA'] * len(translators)
-# Set the colors for the boxes
-for patch, color in zip(bp['boxes'], colors):
-    patch.set_facecolor(color)
+    # compute the percentage of correct responses when the translation was appropriate and when the translation was inappropriate
+    correct_appropriate_percentage = correct_appropriate / appropriate
+    correct_inappropriate_percentage = correct_inappropriate / inappropriate
 
-# Set y-range and fontsize
-y_min = 0
-y_max = 1
-fontsize = 12
+    # initialize a list to store the results
+    appropriate_rand_results = []
+    inappropriate_rand_results = []
+    for i in range(100):
+        # draw a random sample of data the same size as the appropriate count
+        random_sample = data_lang.sample(appropriate, random_state=random.randint(0, 2**32-1))
 
-plt.ylim([y_min - .05, y_max + 0.19])
+        # draw a random sample of data the same size as the inappropriate count
+        random_sample2 = data_lang.sample(inappropriate, random_state=random.randint(0, 2**32-1))
 
-# Adding labels and title
-# Defining labels on xticks
-labels = [''] + translators
+        # Count row many rows were correct when the translation was appropriate
+        correct_appropriate_rand = random_sample['Evaluation.Model Response Was Correct'].sum()
 
-# Set tick positions
-tick_index = [1.5] + [1.5 + 2 * i for i in range(len(labels) - 1)]
+        # Count row many rows were correct when the translation was inappropriate
+        correct_inappropriate_rand = random_sample2['Evaluation.Model Response Was Correct'].sum()
 
-plt.xticks(ticks=tick_index, labels=labels, fontsize=10)
+        # compute the percentage of correct responses using the random sample
+        correct_appropriate_rand_percentage = correct_appropriate_rand / appropriate
+        correct_inappropriate_rand_percentage = correct_inappropriate_rand / inappropriate
 
-# Create legend
-legend_handles = [
-    mpatches.Patch(color=c, label=l)
-    for c, l in zip(colors[:2], ['Similarity to Machine Translation', 'Similarity to Original English'])
-]
+        # append the results to the list
+        appropriate_rand_results.append(correct_appropriate_rand_percentage)
+        inappropriate_rand_results.append(correct_inappropriate_rand_percentage)
 
-# format legend
-ax.legend(
-    handles=legend_handles,
-    frameon=True,
-    fancybox=True,
-    facecolor='white',
-    edgecolor='white',
-    loc='upper left',
-    # bbox_to_anchor=(0.5, 1.35),
-    ncol=4,
-    handletextpad=0.5,  # Adjust space between the handle and the text
-    columnspacing=1.0,  # Adjust space between columns
-    fontsize=10,
-)
+    # store the results in the results dict
+    results[lang] = (correct_appropriate_percentage, correct_inappropriate_percentage, appropriate_rand_results,
+                     inappropriate_rand_results)
 
-# axes labels
-plt.xlabel('Upwork.com Winogrande Translator Name', fontweight='bold', fontsize=fontsize)
-plt.ylabel('ROUGE-1', fontweight='bold', fontsize=fontsize)
+# draw a box and whisker plot of the results for all languages, make sure inappropriate is on the left and appropriate is on the right and ensure that you plot the languages in the following order: xh,ig,ts,bm,am,tn,st,zu,af,nso,sn
+languages = ['xh', 'ig', 'ts', 'bm', 'am', 'tn', 'st', 'zu', 'af', 'nso', 'sn']
 
-# save plot
-plt.tight_layout()
-plt.savefig(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), f'../../results/figures/{figure_name}')), format='pdf')
+plt.figure(figsize=(10, 5))
+
+plt.boxplot([results[lang][3] for lang in languages], positions=range(0, len(languages) * 2, 2), widths=0.6,
+            patch_artist=True, boxprops=dict(facecolor='none'), showfliers=False)
+plt.boxplot([results[lang][2] for lang in languages], positions=range(1, len(languages) * 2, 2), widths=0.6,
+            patch_artist=True, boxprops=dict(facecolor='none'), showfliers=False)
+plt.xticks(range(0, len(languages) * 2, 2), languages)
+plt.xlabel('Target Language')
+plt.ylabel('Percentage of Correct Responses')
+
+# now draw the correct appropriate percentage and the correct inappropriate percentage on the plot as two points
+# ensure that you plot the languages in the following order: xh,ig,ts,bm,am,tn,st,zu,af,nso,sn
+languages = ['xh', 'ig', 'ts', 'bm', 'am', 'tn', 'st', 'zu', 'af', 'nso', 'sn']
+for i, lang in enumerate(languages):
+    plt.scatter(i * 2, results[lang][1], color='blue')
+    plt.scatter(i * 2 + 1, results[lang][0], color='red')
+
+# Create the custom legend for points
+legend_elements = [Line2D([0], [0], marker='o', color='w', label='Inappropriate',
+                          markerfacecolor='blue', markersize=10),
+                   Line2D([0], [0], marker='o', color='w', label='Appropriate',
+                          markerfacecolor='red', markersize=10)]
+
+plt.legend(handles=legend_elements, loc='upper right')
+plt.savefig(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../results/figures/figure_A13.pdf')), format='pdf', dpi=1200, bbox_inches='tight')

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.patches as mpatches  # This is needed to create custom legend handles
 import os
 
-figure_name = 'figure_A5.pdf'
+figure_name = 'figure_A10.pdf'
 
 # load data
 df = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/2. Winogrande Data.csv')))

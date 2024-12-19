@@ -7,7 +7,7 @@ sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__fil
 from useful_variables import evaluation_data, african_languages, winogrande_data
 from useful_functions import rouge_score_single
 
-figure_name = 'figure_A12.pdf'
+figure_name = 'figure_A17.pdf'
 
 # Filter out Belebele since we do not care about translation performance on it
 evaluation_data = evaluation_data[evaluation_data['Evaluation.Data'] != 'belebele']

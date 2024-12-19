@@ -4,10 +4,10 @@ from tqdm import tqdm
 import sys
 import os
 sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils/')))
-from useful_variables import evaluation_data, african_languages
-from useful_functions import rouge_score_single
+from useful_variables import evaluation_data, african_languages, winogrande_data
+from useful_functions import rouge_score_single, get_initials
 
-figure_name = 'figure_A16.pdf'
+figure_name = 'figure_A18.pdf'
 
 # Filter out Belebele since we do not care about translation performance on it
 evaluation_data = evaluation_data[evaluation_data['Evaluation.Data'] != 'belebele']
@@ -46,33 +46,42 @@ for index, row in tqdm(evaluation_data_human.iterrows(), total=evaluation_data_h
 evaluation_data_human['ROUGE-1 vs Machine-Translation'] = rouge1_vs_mt
 evaluation_data_human['ROUGE-1 vs Original English'] = rouge1_vs_original
 
-# Get distributions of ROUGE-1s
-distributions_mt_wino = {}
-distributions_original_wino = {}
-distributions_mt_mmlu = {}
-distributions_original_mmlu = {}
-for language in african_languages:
-    distribution_wino = evaluation_data_human[(evaluation_data_human['Evaluation.Target Language'] == language) & (evaluation_data_human['Evaluation.Data'] == 'winogrande')]
-    distribution_mmlu = evaluation_data_human[(evaluation_data_human['Evaluation.Target Language'] == language) & (evaluation_data_human['Evaluation.Data'].str.contains('mmlu'))]
-    assert distribution_wino.shape[0] == 3674 and distribution_mmlu.shape[0] == 688  # Assert expected sizes of Winogrande and MMLU
-    distributions_mt_wino[language] = distribution_wino['ROUGE-1 vs Machine-Translation'].tolist()
-    distributions_mt_mmlu[language] = distribution_mmlu['ROUGE-1 vs Machine-Translation'].tolist()
-    distributions_original_wino[language] = distribution_wino['ROUGE-1 vs Original English'].tolist()
-    distributions_original_mmlu[language] = distribution_mmlu['ROUGE-1 vs Original English'].tolist()
+# Get mapping of Winogrande data keys to translator names
+translator_name_map = dict(zip(winogrande_data['Key'], winogrande_data['Initial Translator Name']))
+
+# Apply mapping to get column of translator names in evaluation dataset
+evaluation_data_human['Translator Name'] = evaluation_data_human['Evaluation.Winogrande Key'].map(translator_name_map)
+
+# Convert names to initials
+evaluation_data_human['Translator Name'] = evaluation_data_human['Translator Name'].apply(lambda x: get_initials(x))
+
+# Get list of unique translators
+translators = sorted(evaluation_data_human['Translator Name'].fillna('').unique().tolist())
+translators.remove("")
+
+# Get number of rows with each translator for sanity checking
+translator_row_counts = evaluation_data_human['Translator Name'].value_counts().to_dict()
+
+# Get distributions of ROUGE-1 by translator
+distributions_mt_trans = {}
+distributions_original_trans = {}
+for translator in translators:
+    distribution_trans = evaluation_data_human[evaluation_data_human['Translator Name'] == translator]
+    assert distribution_trans.shape[0] == translator_row_counts[translator]
+    distributions_mt_trans[translator] = distribution_trans['ROUGE-1 vs Machine-Translation'].tolist()
+    distributions_original_trans[translator] = distribution_trans['ROUGE-1 vs Original English'].tolist()
 
 # Creating the boxplot
 fig, ax = plt.subplots(figsize=(11, 4))
 
 # Organize distributions into list of lists in desired order
 data_values = []
-for language in african_languages:
-    data_values.append(distributions_mt_wino[language])
-    data_values.append(distributions_mt_mmlu[language])
-    data_values.append(distributions_original_wino[language])
-    data_values.append(distributions_original_mmlu[language])
+for translator in translators:
+    data_values.append(distributions_mt_trans[translator])
+    data_values.append(distributions_original_trans[translator])
 bp = ax.boxplot(
     data_values,
-    tick_labels=list(range(len(african_languages)*4)),  # Four distributions for 11 African languages
+    tick_labels=list(range(len(translators)*2)),  # Two bars for each translator (similarity to machine translation and similarity to original English)
     patch_artist=True,
     whis=(0, 100),
     whiskerprops=dict(color='gray', linewidth=1),
@@ -81,14 +90,10 @@ bp = ax.boxplot(
     # flierprops=dict(marker='o', color='red', markersize=8, markeredgecolor='white')
 )
 
-colors = ['#85C1E9', '#82E0AA', '#FB8F7F', '#F5E14F'] * len(african_languages)
+colors = ['#85C1E9', '#82E0AA'] * len(translators)
 # Set the colors for the boxes
 for patch, color in zip(bp['boxes'], colors):
     patch.set_facecolor(color)
-
-# Add dividing lines between languages
-for i in range(len(african_languages)-1):
-    ax.axvline(x=i*4+4.5, color='grey', linestyle='--', linewidth=1)
 
 # Set y-range and fontsize
 y_min = 0
@@ -99,17 +104,17 @@ plt.ylim([y_min - .05, y_max + 0.19])
 
 # Adding labels and title
 # Defining labels on xticks
-labels = [''] + [lang for lang in african_languages]
+labels = [''] + translators
 
 # Set tick positions
-tick_index = [2.5] + [2.5 + 4 * i for i in range(len(labels) - 1)]
+tick_index = [1.5] + [1.5 + 2 * i for i in range(len(labels) - 1)]
 
 plt.xticks(ticks=tick_index, labels=labels, fontsize=10)
 
 # Create legend
 legend_handles = [
     mpatches.Patch(color=c, label=l)
-    for c, l in zip(colors[:4], ['Winogrande Sim. to MT', 'MMLU Sim. to MT', 'Winogrande Sim. to English', 'MMLU Sim. to English'])
+    for c, l in zip(colors[:2], ['Similarity to Machine Translation', 'Similarity to Original English'])
 ]
 
 # format legend
@@ -128,7 +133,7 @@ ax.legend(
 )
 
 # axes labels
-plt.xlabel('Target Language', fontweight='bold', fontsize=fontsize)
+plt.xlabel('Upwork.com Winogrande Translator Name', fontweight='bold', fontsize=fontsize)
 plt.ylabel('ROUGE-1', fontweight='bold', fontsize=fontsize)
 
 # save plot
