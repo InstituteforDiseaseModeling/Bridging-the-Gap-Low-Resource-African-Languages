@@ -2,13 +2,10 @@ import pandas as pd
 import json
 import os
 
-table_name = "table_A12.csv"
+table_name = "table_A17.csv"
 
 # Load the annotator data
 annotator_data = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/3. Winogrande Cultural Surveys.csv')))
-
-# Filter to QA pairs where BOTH annotators marked it as "Good translation" or "Understandable"
-annotator_data = annotator_data[(annotator_data["Translation Quality per Annotator 1"] != "Completely wrong") & (annotator_data["Translation Quality per Annotator 2"] != "Completely wrong")]
 
 # QA pairs considered appropriate if both annotators marked it as "No, the sentence is typical"
 annotator_data["Appropriate"] = annotator_data.apply(lambda x: x["Cultural Appropriateness per Annotator 1"] == "No, the sentence is typical" and x["Cultural Appropriateness per Annotator 2"] == "No, the sentence is typical", axis=1)

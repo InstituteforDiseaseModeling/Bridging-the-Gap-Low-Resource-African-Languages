@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils')))
 from useful_variables import llm_responses, african_languages, languages
 
-table_name = 'tables_A4-A8.csv'
+table_name = 'tables_A11-A15.csv'
 
 # Load OOTB results
 ootb = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), f'../../results/tables/table_2.csv')), encoding='utf-8').set_index('Model (Evaluation Benchmark)')

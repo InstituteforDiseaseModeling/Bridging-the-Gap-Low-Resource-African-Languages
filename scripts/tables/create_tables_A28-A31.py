@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils')))
 from useful_variables import llm_responses, languages, runs, baselines_ft, quantities, qualities
 
-table_name_prefix = "tables_A21-A24"
+table_name_prefix = "tables_A28-A31"
 os.makedirs(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), f'../../results/tables/{table_name_prefix}')), exist_ok=True)
 
 # Identify where there are mono-lingual lifts of at least 5% when using the full fine-tuning dataset

@@ -2,7 +2,7 @@ import pandas as pd
 from statsmodels.stats.inter_rater import to_table, aggregate_raters, fleiss_kappa, cohens_kappa
 import os
 
-table_name = "table_A9.csv"
+table_name = "table_A16.csv"
 
 # Load the data
 annotator_data = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../data/translations_and_llm_responses/3. Winogrande Cultural Surveys.csv')))
