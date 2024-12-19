@@ -76,7 +76,7 @@ Your OpenAI API key can be found here:
 
 If you would like to run every script to reproduce the results that does not incur any monetary cost, simply run the following:
 ```shell
-bash run_everything.sh
+./run_everything.sh
 ```
 The scripts will run in parallel but are not compute-heavy. The results can be viewed in [`results/`](results). If using version control,
 only the figures should come up as "modified" due to how saving PDFs/SVGs works. The figures will be *visually* identical to their predecessors, though.
