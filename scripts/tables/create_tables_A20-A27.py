@@ -5,8 +5,8 @@ import os
 sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../utils')))
 from useful_variables import llm_responses, languages, runs, baselines_ft
 
-table_name_mean = 'tables_A13-A20_means.csv'
-table_name_std = 'tables_A13-A20_stds.csv'
+table_name_mean = 'tables_A20-A27_means.csv'
+table_name_std = 'tables_A20-A27_stds.csv'
 
 # Initialize output CSV structure
 ordered_eval_benchmarks = ['winogrande', 'mmlu-clinical_knowledge', 'mmlu-virology', 'belebele']

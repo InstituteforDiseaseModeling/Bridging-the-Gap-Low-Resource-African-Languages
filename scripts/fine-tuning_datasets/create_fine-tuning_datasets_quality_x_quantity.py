@@ -23,7 +23,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Identify where there are mono-lingual lifts of at least 5% when using the full fine-tuning dataset
 threshold = 5
-cross_lingual_table = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../results/tables/tables_A13-A20_means.csv')), index_col=0)
+cross_lingual_table = pd.read_csv(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), '../../results/tables/tables_A20-A27_means.csv')), index_col=0)
 train_benchmarks = ['mmlu-college_medicine', 'winogrande-train_s']
 permitted_combinations = {train_benchmark: defaultdict(set) for train_benchmark in train_benchmarks}
 for eval_benchmark in fine_tuning_eval_benchmarks:
