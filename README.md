@@ -16,7 +16,7 @@ Note that Meta's [Belebele](https://github.com/facebookresearch/belebele) in Eng
 
 A [PDF-version of a slideshow presentation](Bridging_the_Gap_Low_Resource_Languages_Presentation.pdf) depicting our work is also provided in this repository.
 
-Our translated datasets can also be accessed on HuggingFace at the following link: (URL pending)
+Our translated datasets can also be accessed on HuggingFace at the following link: [https://huggingface.co/datasets/Institute-Disease-Modeling/mmlu-winogrande-afr](https://huggingface.co/datasets/Institute-Disease-Modeling/mmlu-winogrande-afr)
 
 ## Contents
 
